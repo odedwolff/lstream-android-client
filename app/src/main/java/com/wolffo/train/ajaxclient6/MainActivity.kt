@@ -14,6 +14,7 @@ import org.json.JSONObject
 import android.util.Log
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.android.volley.DefaultRetryPolicy
 import java.util.Locale
 import kotlinx.coroutines.*
 import kotlin.concurrent.thread
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                     // Do something with the result
                     //val objResult = response.getJSONObject("result")
                     genText = response.getString("genText")
-                    translation = response.getString("genText")
+                    translation = response.getString("translation")
                     Log.d("flow", "getnText=$genText")
                     textView.text = genText
                     thread {
@@ -93,14 +94,28 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                     }
                 } catch (e: Exception) {
                     Log.e("api-err", e.toString())
+                    Log.e("flow", e.toString())
                     e.printStackTrace()
+                    testSendAjax()
                 }
             },
             { error ->
                 // Handle errors
                 error.printStackTrace()
+                Log.e("flow", "error server: $error")
+
+                testSendAjax()
+
             }
         )
+        jsonObjectRequest.retryPolicy = DefaultRetryPolicy(
+            20*1000,
+            //DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            5,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
+
+
         Log.d("Flow", "sending it, i guess()")
         requestQueue.add(jsonObjectRequest)
     }
@@ -115,7 +130,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                 println("Language is not supported")
             } else {
                 // Speak out the text
-                speakOut("Hello, this is a Text to Speech example.")
+                //speakOut("Hello, this is a Text to Speech example.")
             }
         } else {
             // Initialization failed
@@ -152,6 +167,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         })
 
 // Use the speak() function and pass a unique utterance ID
+        //textToSpeech.setLanguage(Locale.US)
+        textToSpeech.setLanguage(Locale.ITALIAN)
         textToSpeech.speak(genText, TextToSpeech.QUEUE_FLUSH, null, "utteranceID")
     }
 
@@ -175,6 +192,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
             }
     })
 
+        textToSpeech.setLanguage(Locale.ENGLISH)
         textToSpeech.speak(translation, TextToSpeech.QUEUE_FLUSH, null, "utteranceID")
     }
 
