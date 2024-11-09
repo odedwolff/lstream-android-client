@@ -14,6 +14,11 @@ import org.json.JSONObject
 import android.util.Log
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import android.widget.Toast
 import com.android.volley.DefaultRetryPolicy
 import java.util.Locale
 import kotlinx.coroutines.*
@@ -30,6 +35,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
     private var genText : String = "default get text"
     private var translation : String = "default translation"
 
+    // Create a list of items for the Spinner
+    //val countries = listOf("India", "USA", "UK", "Australia")
+    val delayItemNames = listOf("1 sec", "2 sec", "3 sec", "4 sec", "5 sec", "6 sec", "7 sec", "8 sec")
+    val delayItemVals = listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f)
+    var delayBeforeSolution : Float = 3f
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +53,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
             insets
         }
 
-        val button = findViewById<Button>(R.id.buttonPush)
         val textView = findViewById<TextView>(R.id.textView1)
 
-        button.setOnClickListener {
-            textView.text = "Button was clicked!"
-        }
-
-        val buttonAjax = findViewById<Button>(R.id.buttonTestAjax)
+        val buttonAjax = findViewById<Button>(R.id.buttonStart)
         buttonAjax.setOnClickListener{testSendAjax()};
 
         textToSpeech = TextToSpeech(this, this)
 
-        val buttonTestSpeak= findViewById<Button>(R.id.buttonTestTTS)
-        buttonTestSpeak.setOnClickListener{speakOut("i am happy hope you're happy too")};
+        createSpinnderDelay()
     }
 
 
@@ -88,10 +94,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
                     translation = response.getString("translation")
                     Log.d("flow", "getnText=$genText")
                     textView.text = genText
-                    thread {
-                        speakPart1()
-
-                    }
+//                    thread {
+//                        speakPart1()
+//                    }
+                    speakPart1()
                 } catch (e: Exception) {
                     Log.e("api-err", e.toString())
                     Log.e("flow", e.toString())
@@ -155,9 +161,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
             override fun onDone(utteranceId: String?) {
                 // Called when speech is completed
                 Log.d("flow", "Speech completed")
-                thread {
-                    speakPart2()
-                }
+//                thread {
+//                    speakPart2()
+//                }
+                speakPart2()
             }
 
             override fun onError(utteranceId: String?) {
@@ -181,9 +188,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
             override fun onDone(utteranceId: String?) {
                 // Called when speech is completed
                 Log.d("flow","Speech part 2 completed")
-                thread{
-                    testSendAjax()
-                }
+//                thread{
+//                    testSendAjax()
+//                }
+                testSendAjax()
             }
 
             override fun onError(utteranceId: String?) {
@@ -204,6 +212,36 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
             textToSpeech.shutdown()
         }
         super.onDestroy()
+    }
+
+    fun createSpinnderDelay(){
+        // Create a    Spinner instance
+        val spinner: Spinner = findViewById(R.id.spinnerDelay)
+
+
+
+        // Create an ArrayAdapter to populate the Spinner
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, delayItemNames)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+
+        // Set the adapter to the Spinner
+        spinner.adapter = adapter
+
+
+        // Set an OnItemSelectedListener to handle item selection
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                var selectedDelayTime = delayItemVals[position]
+                Toast.makeText(this@MainActivity, "Selected: $selectedDelayTime", Toast.LENGTH_SHORT).show()
+                delayBeforeSolution = selectedDelayTime
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>)
+            {
+                // Handle the case when nothing is selected
+            }
+        }
     }
 
 }
