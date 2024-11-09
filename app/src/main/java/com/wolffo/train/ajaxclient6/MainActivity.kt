@@ -38,8 +38,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
     // Create a list of items for the Spinner
     //val countries = listOf("India", "USA", "UK", "Australia")
     val delayItemNames = listOf("1 sec", "2 sec", "3 sec", "4 sec", "5 sec", "6 sec", "7 sec", "8 sec")
-    val delayItemVals = listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f)
-    var delayBeforeSolution : Float = 3f
+    val delayItemVals = listOf(1000L, 2000L, 3000L, 4000L, 5000L, 6000L, 7000L, 8000L)
+    var delayBeforeSolution : Long = 2500
 
 
 
@@ -164,6 +164,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
 //                thread {
 //                    speakPart2()
 //                }
+                Thread.sleep(delayBeforeSolution)
                 speakPart2()
             }
 
