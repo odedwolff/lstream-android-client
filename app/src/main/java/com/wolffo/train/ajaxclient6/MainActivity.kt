@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
     val delayItemVals = listOf(1000L, 2000L, 3000L, 4000L, 5000L, 6000L, 7000L, 8000L)
     var delayBeforeSolution : Long = 2500
 
+    var anotherRound : Boolean = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +57,22 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         val textView = findViewById<TextView>(R.id.textView1)
 
         val buttonAjax = findViewById<Button>(R.id.buttonStart)
-        buttonAjax.setOnClickListener{testSendAjax()};
+        val buttonStop = findViewById<Button>(R.id.buttonStop)
+        buttonAjax.isEnabled = true
+        buttonStop.isEnabled = false
+
+        buttonAjax.setOnClickListener{
+            buttonAjax.isEnabled = false
+            buttonStop.isEnabled = true
+            anotherRound = true
+            testSendAjax()
+        };
+
+        buttonStop.setOnClickListener{
+            anotherRound = false
+            buttonAjax.isEnabled = true
+            buttonStop.isEnabled = false
+        };
 
         textToSpeech = TextToSpeech(this, this)
 
@@ -77,7 +93,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
         //const data = {lang:langInfo.langName, level:level, maxLen: maxLen};
 
         val jsonBody = JSONObject().apply {
-            put("lang", "italian")
+            //put("lang", "italian")
+            put("lang", "russian")
             put("level", "B1")
         }
 
@@ -176,7 +193,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
 
 // Use the speak() function and pass a unique utterance ID
         //textToSpeech.setLanguage(Locale.US)
-        textToSpeech.setLanguage(Locale.ITALIAN)
+        textToSpeech.setLanguage(Locale("ru"))
         textToSpeech.speak(genText, TextToSpeech.QUEUE_FLUSH, null, "utteranceID")
     }
 
@@ -192,7 +209,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener{
 //                thread{
 //                    testSendAjax()
 //                }
-                testSendAjax()
+                if(anotherRound){
+                    testSendAjax()
+                }
             }
 
             override fun onError(utteranceId: String?) {
